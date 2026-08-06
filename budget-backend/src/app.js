@@ -10,10 +10,8 @@ import routes from './routes/index.js';
 export function createApp() {
   const app = express();
 
-  // Vercel(프론트) + Render(API) 분리 배포 시 브라우저 cross-origin 허용
-  if (isProduction) {
-    app.use(corsMiddleware);
-  }
+  // Vercel(프론트) + Render(API) — cross-origin (NODE_ENV와 무관하게 항상 적용)
+  app.use(corsMiddleware);
 
   app.use(express.json());
 

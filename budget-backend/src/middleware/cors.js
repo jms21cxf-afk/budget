@@ -2,8 +2,9 @@
 export function corsMiddleware(req, res, next) {
   const origin = req.headers.origin;
 
+  // Origin 있으면 echo, 없으면 * (curl 등)
+  res.setHeader('Access-Control-Allow-Origin', origin ?? '*');
   if (origin) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Vary', 'Origin');
   }
 
