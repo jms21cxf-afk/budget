@@ -1,9 +1,22 @@
-// MongoDB 연결 — 로컬·Atlas 공통
+// MongoDB 연결 — 로컬·Atlas·Vercel 서버리스(연결 캐시) 공통
 import dns from 'node:dns';
 import mongoose from 'mongoose';
 import { MONGODB_URI, isProduction } from './env.js';
 
 const DEFAULT_URI = 'mongodb://127.0.0.1:27017/budget';
+
+/** Vercel warm invoke — 동일 프로세스에서 mongoose 연결 재사용 */
+function getMongooseCache() {
+  if (!globalThis.__mongooseCache) {
+    globalThis.__mongooseCache = {
+      conn: null,
+      promise: null,
+      listenersAttached: false,
+    };
+  }
+
+  return globalThis.__mongooseCache;
+}
 
 /** Windows + mongodb+srv — Node DNS SRV querySrv ECONNREFUSED 우회 */
 function configureDnsForAtlas(uri) {
@@ -25,10 +38,15 @@ function resolveMongoUri() {
   return uri;
 }
 
-/** MongoDB에 연결하고, 연결 이벤트 리스너를 등록한다 */
-export async function connectMongo() {
-  const uri = resolveMongoUri();
-  configureDnsForAtlas(uri);
+/** 연결 이벤트 리스너 — 서버리스에서 중복 등록 방지 */
+function attachConnectionListeners() {
+  const cache = getMongooseCache();
+
+  if (cache.listenersAttached) {
+    return;
+  }
+
+  cache.listenersAttached = true;
 
   mongoose.connection.on('connected', () => {
     console.log('MongoDB connected');
@@ -41,13 +59,31 @@ export async function connectMongo() {
   mongoose.connection.on('disconnected', () => {
     console.warn('MongoDB disconnected');
   });
+}
 
-  await mongoose.connect(uri, {
-    // Atlas·클라우드 배포 시 연결 대기
-    serverSelectionTimeoutMS: 15_000,
-  });
+/** MongoDB에 연결 (이미 연결됐으면 캐시 반환) */
+export async function connectMongo() {
+  const cache = getMongooseCache();
 
-  return mongoose.connection;
+  if (cache.conn) {
+    return cache.conn;
+  }
+
+  const uri = resolveMongoUri();
+  configureDnsForAtlas(uri);
+  attachConnectionListeners();
+
+  if (!cache.promise) {
+    cache.promise = mongoose
+      .connect(uri, {
+        // Atlas·클라우드 배포 시 연결 대기
+        serverSelectionTimeoutMS: 15_000,
+      })
+      .then(() => mongoose.connection);
+  }
+
+  cache.conn = await cache.promise;
+  return cache.conn;
 }
 
 /** graceful shutdown 시 연결 종료 */

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm install --include=dev",
+  "buildCommand": "npm run build:vercel",
+  "outputDirectory": "budget-frontend/dist",
+  "functions": {
+    "src/index.js": {
+      "maxDuration": 30,
+      "includeFiles": "budget-backend/src/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}

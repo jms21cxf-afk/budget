@@ -1,6 +1,7 @@
 {
   "name": "budget",
   "private": true,
+  "type": "module",
   "workspaces": [
     "budget-backend",
     "budget-frontend"
@@ -11,9 +12,15 @@
     "dev:frontend": "npm run dev -w budget-frontend",
     "build": "npm run build -w budget-frontend",
     "build:render": "npm install --include=dev && npm run build",
+    "build:vercel": "npm run build",
     "start": "npm run start -w budget-backend",
     "seed": "npm run seed -w budget-backend",
     "install:all": "npm install"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "mongoose": "^8.18.0"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

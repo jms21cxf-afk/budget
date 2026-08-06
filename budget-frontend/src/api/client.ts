@@ -1,5 +1,7 @@
-// API fetch 공통 클라이언트 — dev에서 Vite proxy(/api → 3001) 경유
-const API_BASE = '/api';
+// API fetch 공통 클라이언트 — dev: Vite proxy / Vercel: 동일 출처 /api
+// 프론트만 Vercel·API는 Render 등 분리 배포 시 VITE_API_URL=https://.../api
+const API_BASE =
+  import.meta.env.VITE_API_URL?.replace(/\/$/, '') ?? '/api';
 
 export class ApiError extends Error {
   status: number;
