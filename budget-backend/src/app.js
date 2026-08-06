@@ -3,11 +3,17 @@ import express from 'express';
 import { connectMongo } from './config/db.js';
 import { isProduction, isVercel } from './config/env.js';
 import { serveFrontend } from './lib/serveFrontend.js';
+import { corsMiddleware } from './middleware/cors.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import routes from './routes/index.js';
 
 export function createApp() {
   const app = express();
+
+  // Vercel(프론트) + Render(API) 분리 배포 시 브라우저 cross-origin 허용
+  if (isProduction) {
+    app.use(corsMiddleware);
+  }
 
   app.use(express.json());
 
