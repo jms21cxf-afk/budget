@@ -1,0 +1,25 @@
+/* cat-group — display:contents로 day-group__list 3열 그리드에 합류 */
+.cat-group {
+  display: contents;
+}
+
+.cat-group__label {
+  grid-column: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.25rem;
+  font-size: 1rem;
+  padding: 0.125rem 0;
+  align-self: start;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.cat-group__label > span:last-child {
+  word-break: keep-all;
+}
+
+.cat-group__icon {
+  flex-shrink: 0;
+  line-height: 1.4;
+}

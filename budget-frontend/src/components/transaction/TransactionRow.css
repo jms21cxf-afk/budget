@@ -1,0 +1,36 @@
+/* tx-row — 메모(2열)·금액(3열) 정렬 */
+.tx-row {
+  display: contents;
+}
+
+.tx-row__memo {
+  grid-column: 2;
+  padding: 0.125rem 0;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+.tx-row__memo:hover {
+  text-decoration: underline;
+}
+
+.tx-row__amount {
+  grid-column: 3;
+  padding: 0.125rem 0;
+  font-size: 1rem;
+  text-align: right;
+  white-space: nowrap;
+  justify-self: end;
+}
+
+.tx-row__amount--income {
+  color: #1565c0;
+}
+
+.tx-row__amount--expense {
+  color: #c62828;
+}

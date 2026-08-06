@@ -1,0 +1,39 @@
+.day-group {
+  padding-top: 1rem;
+}
+
+.day-group__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.375rem;
+}
+
+.day-group__date {
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.day-group__totals {
+  display: flex;
+  align-items: baseline;
+  gap: 2rem;
+  font-size: 1rem;
+}
+
+.day-group__total--income {
+  color: #1565c0;
+}
+
+.day-group__total--expense {
+  color: #c62828;
+}
+
+.day-group__list {
+  display: grid;
+  grid-template-columns: 11rem 1fr auto;
+  column-gap: 1rem;
+  row-gap: 0.125rem;
+  align-items: baseline;
+}

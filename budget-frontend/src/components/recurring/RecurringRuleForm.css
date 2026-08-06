@@ -1,0 +1,115 @@
+.recurring-form-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.recurring-form {
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow: auto;
+  padding: 1rem 1rem 1.5rem;
+  background: #fff;
+  border-top: 1px solid #e0e0e0;
+}
+
+.recurring-form__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.recurring-form__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.recurring-form__close {
+  border: none;
+  background: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.recurring-form__type-toggle {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.recurring-form__type-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  color: #888;
+  cursor: pointer;
+}
+
+.recurring-form__type-btn.is-active {
+  font-weight: 600;
+  color: #111;
+}
+
+.recurring-form__section-label {
+  margin: 0 0 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #111;
+}
+
+.recurring-form__schedule-panel {
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid #eee;
+}
+
+.recurring-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.875rem;
+}
+
+.recurring-form__field span {
+  font-size: 0.875rem;
+  color: #555;
+}
+
+.recurring-form__field input,
+.recurring-form__field select {
+  padding: 0.5rem 0.625rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.recurring-form__error {
+  margin: 0 0 0.75rem;
+  color: #b00020;
+  font-size: 0.875rem;
+}
+
+.recurring-form__submit {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.recurring-form__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

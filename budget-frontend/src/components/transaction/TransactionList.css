@@ -1,0 +1,13 @@
+.tx-list {
+  padding-bottom: 2rem;
+}
+
+.tx-list__message {
+  padding: 2rem 0;
+  text-align: center;
+  color: #666;
+}
+
+.tx-list__message--error {
+  color: #b00020;
+}

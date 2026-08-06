@@ -1,0 +1,13 @@
+# Render.com 배포 설정 — Web Service 하나로 API + 프론트
+services:
+  - type: web
+    name: budget
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false

@@ -1,0 +1,18 @@
+.stats-view-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.5rem 0 0.75rem;
+}
+
+.stats-view-tabs__item {
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  color: inherit;
+}
+
+.stats-view-tabs__item.is-active {
+  font-weight: 600;
+}

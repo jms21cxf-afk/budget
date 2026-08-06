@@ -1,0 +1,33 @@
+.list-page {
+  max-width: 640px;
+  margin: 0 auto;
+  min-height: 100%;
+  padding: 0 1rem 1rem;
+  color: #111;
+}
+
+.list-page__body {
+  padding-top: 0.25rem;
+}
+
+.list-page__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.25rem 0 0.5rem;
+}
+
+.list-page__recurring-btn {
+  padding: 0.25rem 0.625rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.list-page__placeholder {
+  padding: 3rem 0;
+  text-align: center;
+  color: #666;
+}

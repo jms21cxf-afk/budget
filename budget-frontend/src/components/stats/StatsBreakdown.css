@@ -1,0 +1,90 @@
+.stats-breakdown__message {
+  padding: 2rem 0;
+  text-align: center;
+  color: #666;
+}
+
+.stats-breakdown__message--error {
+  color: #b00020;
+}
+
+.stats-breakdown__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stats-breakdown__item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.stats-breakdown__label-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.375rem;
+}
+
+.stats-breakdown__icon {
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.stats-breakdown__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stats-breakdown__amount--income {
+  color: #1565c0;
+}
+
+.stats-breakdown__amount--expense {
+  color: #c62828;
+}
+
+.stats-breakdown__bar-track {
+  height: 4px;
+  margin-bottom: 0.25rem;
+  border-radius: 2px;
+  background: #f0f0f0;
+  overflow: hidden;
+}
+
+.stats-breakdown__bar {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.stats-breakdown__bar--income {
+  background: #1565c0;
+}
+
+.stats-breakdown__bar--expense {
+  background: #c62828;
+}
+
+.stats-breakdown__ratio {
+  font-size: 0.8125rem;
+  color: #888;
+}
+
+.stats-monthly-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.stats-monthly-table th,
+.stats-monthly-table td {
+  padding: 0.625rem 0;
+  border-bottom: 1px solid #eee;
+  font-weight: 400;
+  text-align: left;
+}
+
+.stats-monthly-table td {
+  text-align: right;
+}

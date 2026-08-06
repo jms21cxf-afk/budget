@@ -1,0 +1,65 @@
+.filter-bar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0.25rem 0 0.875rem;
+}
+
+.filter-bar__summary {
+  display: flex;
+  gap: 2rem;
+}
+
+.filter-bar__col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.filter-bar__type {
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  color: inherit;
+}
+
+.filter-bar__type.is-active {
+  font-weight: 600;
+}
+
+.filter-bar__amount {
+  font-size: 1rem;
+}
+
+.filter-bar__amount--income {
+  color: #1565c0;
+}
+
+.filter-bar__amount--expense {
+  color: #c62828;
+}
+
+.filter-bar__total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding-bottom: 0.125rem;
+}
+
+.filter-bar__total-label {
+  font-size: 1rem;
+}
+
+.filter-bar__total-value {
+  font-size: 1rem;
+}
+
+.filter-bar__total-value--positive {
+  color: #1565c0;
+}
+
+.filter-bar__total-value--negative {
+  color: #c62828;
+}

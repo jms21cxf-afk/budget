@@ -1,0 +1,65 @@
+.stats-page {
+  max-width: 640px;
+  margin: 0 auto;
+  min-height: 100%;
+  padding: 0 1rem 5rem;
+  color: #111;
+}
+
+.stats-page__header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding-top: 0.75rem;
+  background: #fff;
+}
+
+.stats-page__type-toggle {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0 0.875rem;
+}
+
+.stats-page__type-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  color: inherit;
+}
+
+.stats-page__type-btn.is-active {
+  font-weight: 600;
+}
+
+.stats-page__year-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.25rem 0 0.5rem;
+}
+
+.stats-page__year-btn {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  background: none;
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.stats-page__year-label {
+  min-width: 4rem;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.stats-page__divider {
+  margin: 0;
+  border: none;
+  border-top: 1px solid #e0e0e0;
+}
+
+.stats-page__body {
+  padding-top: 0.25rem;
+}
