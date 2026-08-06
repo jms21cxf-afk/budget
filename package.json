@@ -10,6 +10,7 @@
     "dev:backend": "npm run dev -w budget-backend",
     "dev:frontend": "npm run dev -w budget-frontend",
     "build": "npm run build -w budget-frontend",
+    "build:render": "npm install --include=dev && npm run build",
     "start": "npm run start -w budget-backend",
     "seed": "npm run seed -w budget-backend",
     "install:all": "npm install"
