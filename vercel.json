@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "npm install --include=dev",
-  "buildCommand": "npm run build:vercel",
+  "buildCommand": "npm run build -w budget-frontend",
   "outputDirectory": "budget-frontend/dist",
   "functions": {
     "src/index.js": {
