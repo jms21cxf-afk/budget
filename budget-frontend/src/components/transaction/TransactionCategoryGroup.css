@@ -13,6 +13,7 @@
   align-self: start;
   min-width: 0;
   line-height: 1.35;
+  overflow: hidden;
 }
 
 .cat-group__label > span:last-child {

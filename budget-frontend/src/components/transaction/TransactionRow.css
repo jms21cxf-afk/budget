@@ -5,6 +5,7 @@
 
 .tx-row__memo {
   grid-column: 2;
+  min-width: 0;
   padding: 0.125rem 0;
   border: none;
   background: none;
@@ -12,6 +13,9 @@
   text-align: left;
   color: inherit;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   /* iOS — 세로 스크롤만 브라우저 처리, 가로 스와이프는 상위 zone */
   touch-action: pan-y;
 }
