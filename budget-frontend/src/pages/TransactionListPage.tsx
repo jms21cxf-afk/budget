@@ -107,14 +107,14 @@ export function TransactionListPage() {
     setMonth(next.month);
   }
 
-  const swipeHandlers = useSwipeMonth(
+  const swipeRef = useSwipeMonth(
     goPrevMonth,
     goNextMonth,
     !formVisible && !recurringOpen,
   );
 
   return (
-    <div className="list-page list-page--swipe" {...swipeHandlers}>
+    <div className="list-page" ref={swipeRef}>
       <StickyHeader
         year={year}
         month={month}

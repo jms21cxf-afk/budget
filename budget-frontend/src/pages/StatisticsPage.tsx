@@ -74,10 +74,10 @@ export function StatisticsPage() {
   }
 
   const swipeEnabled = view === 'category' || view === 'monthly';
-  const swipeHandlers = useSwipeMonth(goPrevPeriod, goNextPeriod, swipeEnabled);
+  const swipeRef = useSwipeMonth(goPrevPeriod, goNextPeriod, swipeEnabled);
 
   return (
-    <div className="stats-page stats-page--swipe" {...swipeHandlers}>
+    <div className="stats-page" ref={swipeRef}>
       <header className="stats-page__header">
         <div className="stats-page__type-toggle" role="tablist">
           <button

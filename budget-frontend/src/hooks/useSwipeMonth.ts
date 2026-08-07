@@ -1,60 +1,108 @@
 // 터치 스와이프 — 좌우로 이전·다음 달(또는 기간) 이동
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
-const SWIPE_THRESHOLD_PX = 50;
+const SWIPE_THRESHOLD_PX = 48;
+const LOCK_THRESHOLD_PX = 8;
 
 interface TouchPoint {
   x: number;
   y: number;
 }
 
-interface SwipeHandlers {
-  onTouchStart: (event: React.TouchEvent) => void;
-  onTouchEnd: (event: React.TouchEvent) => void;
-}
-
-/** enabled=false면 핸들러 no-op (모달 열림 등) */
+/** enabled=false면 리스너 미등록 (모달 열림 등) */
 export function useSwipeMonth(
   onPrev: () => void,
   onNext: () => void,
   enabled = true,
-): SwipeHandlers {
+) {
+  const elementRef = useRef<HTMLDivElement | null>(null);
   const startRef = useRef<TouchPoint | null>(null);
+  const axisRef = useRef<'horizontal' | 'vertical' | null>(null);
+  const onPrevRef = useRef(onPrev);
+  const onNextRef = useRef(onNext);
 
-  function onTouchStart(event: React.TouchEvent) {
-    if (!enabled) return;
+  onPrevRef.current = onPrev;
+  onNextRef.current = onNext;
 
-    const touch = event.changedTouches[0] ?? event.touches[0];
-    if (!touch) return;
+  useEffect(() => {
+    const element = elementRef.current;
+    if (!element || !enabled) return;
 
-    startRef.current = { x: touch.clientX, y: touch.clientY };
-  }
-
-  function onTouchEnd(event: React.TouchEvent) {
-    if (!enabled || !startRef.current) return;
-
-    const touch = event.changedTouches[0];
-    if (!touch) {
+    function resetTouch() {
       startRef.current = null;
-      return;
+      axisRef.current = null;
     }
 
-    const dx = touch.clientX - startRef.current.x;
-    const dy = touch.clientY - startRef.current.y;
-    startRef.current = null;
+    function handleTouchStart(event: TouchEvent) {
+      if (event.touches.length !== 1) return;
 
-    // 세로 스크롤 의도면 무시
-    if (Math.abs(dx) < SWIPE_THRESHOLD_PX || Math.abs(dx) < Math.abs(dy)) {
-      return;
+      const touch = event.touches[0];
+      startRef.current = { x: touch.clientX, y: touch.clientY };
+      axisRef.current = null;
     }
 
-    // 왼쪽 스와이프 → 다음 달, 오른쪽 → 이전 달
-    if (dx < 0) {
-      onNext();
-    } else {
-      onPrev();
-    }
-  }
+    function handleTouchMove(event: TouchEvent) {
+      if (!startRef.current || event.touches.length !== 1) return;
 
-  return { onTouchStart, onTouchEnd };
+      const touch = event.touches[0];
+      const dx = touch.clientX - startRef.current.x;
+      const dy = touch.clientY - startRef.current.y;
+
+      // 스크롤 vs 스와이프 방향 잠금
+      if (axisRef.current === null) {
+        if (
+          Math.abs(dx) < LOCK_THRESHOLD_PX &&
+          Math.abs(dy) < LOCK_THRESHOLD_PX
+        ) {
+          return;
+        }
+
+        axisRef.current =
+          Math.abs(dx) > Math.abs(dy) ? 'horizontal' : 'vertical';
+      }
+
+      // 가로 스와이프 — 브라우저 기본 스크롤 억제
+      if (axisRef.current === 'horizontal') {
+        event.preventDefault();
+      }
+    }
+
+    function handleTouchEnd(event: TouchEvent) {
+      if (!startRef.current || axisRef.current !== 'horizontal') {
+        resetTouch();
+        return;
+      }
+
+      const touch = event.changedTouches[0];
+      if (!touch) {
+        resetTouch();
+        return;
+      }
+
+      const dx = touch.clientX - startRef.current.x;
+      resetTouch();
+
+      if (Math.abs(dx) < SWIPE_THRESHOLD_PX) return;
+
+      if (dx < 0) {
+        onNextRef.current();
+      } else {
+        onPrevRef.current();
+      }
+    }
+
+    element.addEventListener('touchstart', handleTouchStart, { passive: true });
+    element.addEventListener('touchmove', handleTouchMove, { passive: false });
+    element.addEventListener('touchend', handleTouchEnd, { passive: true });
+    element.addEventListener('touchcancel', resetTouch, { passive: true });
+
+    return () => {
+      element.removeEventListener('touchstart', handleTouchStart);
+      element.removeEventListener('touchmove', handleTouchMove);
+      element.removeEventListener('touchend', handleTouchEnd);
+      element.removeEventListener('touchcancel', resetTouch);
+    };
+  }, [enabled]);
+
+  return elementRef;
 }
