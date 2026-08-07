@@ -154,10 +154,10 @@ export function SwipeableZone({
       event.stopPropagation();
     }
 
-    zone.addEventListener('touchstart', onTouchStart, { passive: true });
-    zone.addEventListener('touchmove', onTouchMove, { passive: false });
-    zone.addEventListener('touchend', onTouchEnd, { passive: true });
-    zone.addEventListener('touchcancel', resetGesture, { passive: true });
+    zone.addEventListener('touchstart', onTouchStart, { passive: true, capture: true });
+    zone.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
+    zone.addEventListener('touchend', onTouchEnd, { passive: true, capture: true });
+    zone.addEventListener('touchcancel', resetGesture, { passive: true, capture: true });
 
     zone.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
@@ -165,10 +165,10 @@ export function SwipeableZone({
     zone.addEventListener('click', onClickCapture, true);
 
     return () => {
-      zone.removeEventListener('touchstart', onTouchStart);
-      zone.removeEventListener('touchmove', onTouchMove);
-      zone.removeEventListener('touchend', onTouchEnd);
-      zone.removeEventListener('touchcancel', resetGesture);
+      zone.removeEventListener('touchstart', onTouchStart, { capture: true });
+      zone.removeEventListener('touchmove', onTouchMove, { capture: true });
+      zone.removeEventListener('touchcancel', resetGesture, { capture: true });
+      zone.removeEventListener('touchend', onTouchEnd, { capture: true });
       zone.removeEventListener('mousedown', onMouseDown);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);

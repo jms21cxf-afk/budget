@@ -1,4 +1,8 @@
 /* 스와이프 영역 — 세로 스크롤은 허용, 가로는 JS에서 처리 */
 .swipeable-zone {
-  touch-action: manipulation;
+  touch-action: pan-y;
+}
+
+.month-nav-swipe {
+  touch-action: pan-y;
 }

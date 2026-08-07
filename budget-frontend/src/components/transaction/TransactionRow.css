@@ -12,6 +12,8 @@
   text-align: left;
   color: inherit;
   cursor: pointer;
+  /* iOS — 세로 스크롤만 브라우저 처리, 가로 스와이프는 상위 zone */
+  touch-action: pan-y;
 }
 
 .tx-row__memo:hover {

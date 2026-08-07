@@ -3,6 +3,7 @@ import type { TransactionType } from '../../types/category';
 import type { ViewMode } from '../../utils/constants';
 import { FilterBar } from './FilterBar';
 import { MonthNavigator } from './MonthNavigator';
+import { SwipeableZone } from './SwipeableZone';
 import { ViewTabs } from './ViewTabs';
 import './StickyHeader.css';
 
@@ -17,6 +18,8 @@ interface StickyHeaderProps {
   onNextMonth: () => void;
   onViewChange: (view: ViewMode) => void;
   onTypeChange: (type: TransactionType) => void;
+  /** false면 월 네비 스와이프 비활성 (모달 등) */
+  swipeEnabled?: boolean;
 }
 
 export function StickyHeader({
@@ -30,15 +33,23 @@ export function StickyHeader({
   onNextMonth,
   onViewChange,
   onTypeChange,
+  swipeEnabled = true,
 }: StickyHeaderProps) {
   return (
     <header className="sticky-header">
-      <MonthNavigator
-        year={year}
-        month={month}
+      <SwipeableZone
+        className="month-nav-swipe swipeable-zone"
+        enabled={swipeEnabled}
         onPrev={onPrevMonth}
         onNext={onNextMonth}
-      />
+      >
+        <MonthNavigator
+          year={year}
+          month={month}
+          onPrev={onPrevMonth}
+          onNext={onNextMonth}
+        />
+      </SwipeableZone>
       <ViewTabs active={view} onChange={onViewChange} />
       <FilterBar
         type={type}

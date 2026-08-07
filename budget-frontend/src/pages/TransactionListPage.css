@@ -8,6 +8,8 @@
 
 .list-page__body {
   padding-top: 0.25rem;
+  flex: 1;
+  touch-action: pan-y;
 }
 
 .list-page__toolbar {

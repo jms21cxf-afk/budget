@@ -108,12 +108,7 @@ export function TransactionListPage() {
   }
 
   return (
-    <SwipeableZone
-      className="list-page swipeable-zone"
-      enabled={!formVisible && !recurringOpen}
-      onPrev={goPrevMonth}
-      onNext={goNextMonth}
-    >
+    <div className="list-page">
       <StickyHeader
         year={year}
         month={month}
@@ -125,6 +120,7 @@ export function TransactionListPage() {
         onNextMonth={goNextMonth}
         onViewChange={setView}
         onTypeChange={setType}
+        swipeEnabled={!formVisible && !recurringOpen}
       />
 
       <div className="list-page__toolbar">
@@ -137,7 +133,12 @@ export function TransactionListPage() {
         </button>
       </div>
 
-      <div className="list-page__body">
+      <SwipeableZone
+        className="list-page__body swipeable-zone"
+        enabled={!formVisible && !recurringOpen}
+        onPrev={goPrevMonth}
+        onNext={goNextMonth}
+      >
         {view === 'list' && (
           <TransactionList
             transactions={transactions}
@@ -172,7 +173,7 @@ export function TransactionListPage() {
             error={error}
           />
         )}
-      </div>
+      </SwipeableZone>
 
       {(view === 'list' || view === 'calendar') && (
         <button
@@ -207,6 +208,6 @@ export function TransactionListPage() {
         onGenerate={handleRecurringGenerate}
         onDelete={removeRule}
       />
-    </SwipeableZone>
+    </div>
   );
 }
