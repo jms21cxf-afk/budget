@@ -6,9 +6,9 @@ import { StickyHeader } from '../components/layout/StickyHeader';
 import { TransactionMonthly } from '../components/monthly/TransactionMonthly';
 import { TransactionForm } from '../components/transaction/TransactionForm';
 import { TransactionList } from '../components/transaction/TransactionList';
+import { SwipeableZone } from '../components/layout/SwipeableZone';
 import { useAllCategories } from '../hooks/useAllCategories';
 import { useRecurringRules } from '../hooks/useRecurringRules';
-import { useSwipeMonth } from '../hooks/useSwipeMonth';
 import { useTransactions } from '../hooks/useTransactions';
 import type { TransactionType } from '../types/category';
 import type { Transaction } from '../types/transaction';
@@ -107,14 +107,13 @@ export function TransactionListPage() {
     setMonth(next.month);
   }
 
-  const swipeRef = useSwipeMonth(
-    goPrevMonth,
-    goNextMonth,
-    !formVisible && !recurringOpen,
-  );
-
   return (
-    <div className="list-page" ref={swipeRef}>
+    <SwipeableZone
+      className="list-page swipeable-zone"
+      enabled={!formVisible && !recurringOpen}
+      onPrev={goPrevMonth}
+      onNext={goNextMonth}
+    >
       <StickyHeader
         year={year}
         month={month}
@@ -208,6 +207,6 @@ export function TransactionListPage() {
         onGenerate={handleRecurringGenerate}
         onDelete={removeRule}
       />
-    </div>
+    </SwipeableZone>
   );
 }

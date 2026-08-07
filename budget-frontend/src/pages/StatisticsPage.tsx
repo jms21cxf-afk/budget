@@ -5,9 +5,9 @@ import { StatsMonthlyBreakdown } from '../components/stats/StatsMonthlyBreakdown
 import { StatsYearlyBreakdown } from '../components/stats/StatsYearlyBreakdown';
 import { StatsViewTabs, type StatsView } from '../components/stats/StatsViewTabs';
 import { MonthNavigator } from '../components/layout/MonthNavigator';
+import { SwipeableZone } from '../components/layout/SwipeableZone';
 import { useCategories } from '../hooks/useCategories';
 import { useStatsTransactions } from '../hooks/useStatsTransactions';
-import { useSwipeMonth } from '../hooks/useSwipeMonth';
 import type { TransactionType } from '../types/category';
 import { formatYearLabel } from '../utils/format';
 import { getCurrentYearMonth, shiftMonth, shiftYear } from '../utils/month';
@@ -74,10 +74,14 @@ export function StatisticsPage() {
   }
 
   const swipeEnabled = view === 'category' || view === 'monthly';
-  const swipeRef = useSwipeMonth(goPrevPeriod, goNextPeriod, swipeEnabled);
 
   return (
-    <div className="stats-page" ref={swipeRef}>
+    <SwipeableZone
+      className="stats-page swipeable-zone"
+      enabled={swipeEnabled}
+      onPrev={goPrevPeriod}
+      onNext={goNextPeriod}
+    >
       <header className="stats-page__header">
         <div className="stats-page__type-toggle" role="tablist">
           <button
@@ -154,6 +158,6 @@ export function StatisticsPage() {
           />
         )}
       </div>
-    </div>
+    </SwipeableZone>
   );
 }
