@@ -1,6 +1,6 @@
 // 거래 입력·수정 폼 — + 추가 / 메모 클릭 수정
 import { useEffect, useMemo, useState } from 'react';
-import type { FormEvent } from 'react';
+import type { ClipboardEvent, FormEvent } from 'react';
 import { createTransaction, deleteTransaction, updateTransaction } from '../../api/transactions';
 import { useCategories } from '../../hooks/useCategories';
 import type { TransactionType } from '../../types/category';
@@ -15,6 +15,7 @@ import {
   parseOccurredAt,
   toOccurredAt,
 } from '../../utils/form';
+import { parseSmsText } from '../../utils/smsParser';
 import './TransactionForm.css';
 
 interface TransactionFormProps {
@@ -57,12 +58,19 @@ export function TransactionForm({
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // 추가 모드 — 결제 문자 붙여넣기
+  const [smsOpen, setSmsOpen] = useState(false);
+  const [smsText, setSmsText] = useState('');
+  const [smsHint, setSmsHint] = useState<string | null>(null);
 
   // 모달 열릴 때 폼 초기화 (추가 / 수정)
   useEffect(() => {
     if (!open) return;
 
     setError(null);
+    setSmsOpen(false);
+    setSmsText('');
+    setSmsHint(null);
 
     if (transaction) {
       const parsed = parseOccurredAt(transaction.occurredAt);
@@ -96,6 +104,29 @@ export function TransactionForm({
     : '';
 
   if (!open) return null;
+
+  /** 붙여넣은 결제 문자 → 폼 필드 자동 채움 */
+  function applySmsParse(text: string) {
+    const { result, filledFields, message } = parseSmsText(text);
+    setSmsHint(message);
+
+    if (filledFields.length === 0) return;
+
+    if (result.type) setFormType(result.type);
+    if (result.amount !== undefined) setAmount(String(result.amount));
+    if (result.date) setDate(result.date);
+    if (result.time) setTime(result.time);
+    if (result.memo) setMemo(result.memo);
+    if (result.paymentMethod) setPaymentMethod(result.paymentMethod);
+  }
+
+  function handleSmsPaste(event: ClipboardEvent<HTMLTextAreaElement>) {
+    const pasted = event.clipboardData.getData('text');
+    if (!pasted.trim()) return;
+
+    // 붙여넣기 직후 textarea 값 반영을 위해 다음 틱에 파싱
+    window.setTimeout(() => applySmsParse(pasted), 0);
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -202,6 +233,50 @@ export function TransactionForm({
         </header>
 
         <form className="tx-form__body" onSubmit={handleSubmit}>
+          {!isEdit && (
+            <div className="tx-form__sms">
+              <button
+                type="button"
+                className="tx-form__sms-toggle"
+                aria-expanded={smsOpen}
+                onClick={() => setSmsOpen((prev) => !prev)}
+              >
+                {smsOpen ? '문자 입력 닫기' : '문자에서 붙여넣기'}
+              </button>
+
+              {smsOpen && (
+                <div className="tx-form__sms-panel">
+                  <p className="tx-form__sms-desc">
+                    결제 알림 문자를 복사해 붙여넣으면 금액·날짜 등이 자동으로
+                    채워집니다. (문자함 접근 권한 불필요)
+                  </p>
+                  <textarea
+                    className="tx-form__sms-input"
+                    rows={5}
+                    placeholder="[KB국민] 승인&#10;12,500원 일시불&#10;07/15 14:32&#10;스타벅스강남점"
+                    value={smsText}
+                    onChange={(event) => setSmsText(event.target.value)}
+                    onPaste={handleSmsPaste}
+                  />
+                  <button
+                    type="button"
+                    className="tx-form__sms-parse"
+                    onClick={() => applySmsParse(smsText)}
+                  >
+                    분석하기
+                  </button>
+                  {smsHint && (
+                    <p
+                      className={`tx-form__sms-hint${smsHint.includes('인식') ? ' is-error' : ''}`}
+                    >
+                      {smsHint}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           <label className="tx-form__field">
             <span>날짜</span>
             <input
