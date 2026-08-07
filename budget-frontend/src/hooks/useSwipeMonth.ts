@@ -1,12 +1,23 @@
-// 터치 스와이프 — 좌우로 이전·다음 달(또는 기간) 이동
+// 터치·마우스 스와이프 — 좌우로 이전·다음 달(또는 기간) 이동
 import { useEffect, useRef } from 'react';
 
-const SWIPE_THRESHOLD_PX = 48;
-const LOCK_THRESHOLD_PX = 8;
+const SWIPE_THRESHOLD_PX = 40;
+const LOCK_THRESHOLD_PX = 6;
 
 interface TouchPoint {
   x: number;
   y: number;
+}
+
+interface GestureState {
+  start: TouchPoint | null;
+  axis: 'horizontal' | 'vertical' | null;
+  pointerId: number | null;
+  active: boolean;
+}
+
+function emptyGesture(): GestureState {
+  return { start: null, axis: null, pointerId: null, active: false };
 }
 
 /** enabled=false면 리스너 미등록 (모달 열림 등) */
@@ -15,9 +26,8 @@ export function useSwipeMonth(
   onNext: () => void,
   enabled = true,
 ) {
-  const elementRef = useRef<HTMLDivElement | null>(null);
-  const startRef = useRef<TouchPoint | null>(null);
-  const axisRef = useRef<'horizontal' | 'vertical' | null>(null);
+  const zoneRef = useRef<HTMLDivElement | null>(null);
+  const gestureRef = useRef<GestureState>(emptyGesture());
   const onPrevRef = useRef(onPrev);
   const onNextRef = useRef(onNext);
 
@@ -25,31 +35,38 @@ export function useSwipeMonth(
   onNextRef.current = onNext;
 
   useEffect(() => {
-    const element = elementRef.current;
-    if (!element || !enabled) return;
+    if (!enabled) return;
 
-    function resetTouch() {
-      startRef.current = null;
-      axisRef.current = null;
+    function inZone(target: EventTarget | null) {
+      const zone = zoneRef.current;
+      return Boolean(zone && target instanceof Node && zone.contains(target));
     }
 
-    function handleTouchStart(event: TouchEvent) {
-      if (event.touches.length !== 1) return;
-
-      const touch = event.touches[0];
-      startRef.current = { x: touch.clientX, y: touch.clientY };
-      axisRef.current = null;
+    function resetGesture() {
+      gestureRef.current = emptyGesture();
     }
 
-    function handleTouchMove(event: TouchEvent) {
-      if (!startRef.current || event.touches.length !== 1) return;
+    function beginGesture(x: number, y: number, pointerId: number) {
+      gestureRef.current = {
+        start: { x, y },
+        axis: null,
+        pointerId,
+        active: true,
+      };
+    }
 
-      const touch = event.touches[0];
-      const dx = touch.clientX - startRef.current.x;
-      const dy = touch.clientY - startRef.current.y;
+    function moveGesture(
+      x: number,
+      y: number,
+      preventDefault: () => void,
+    ) {
+      const gesture = gestureRef.current;
+      if (!gesture.active || !gesture.start) return;
 
-      // 스크롤 vs 스와이프 방향 잠금
-      if (axisRef.current === null) {
+      const dx = x - gesture.start.x;
+      const dy = y - gesture.start.y;
+
+      if (gesture.axis === null) {
         if (
           Math.abs(dx) < LOCK_THRESHOLD_PX &&
           Math.abs(dy) < LOCK_THRESHOLD_PX
@@ -57,30 +74,25 @@ export function useSwipeMonth(
           return;
         }
 
-        axisRef.current =
-          Math.abs(dx) > Math.abs(dy) ? 'horizontal' : 'vertical';
+        // 대각선도 가로 스와이프로 관대하게 인식
+        gesture.axis =
+          Math.abs(dx) >= Math.abs(dy) * 0.65 ? 'horizontal' : 'vertical';
       }
 
-      // 가로 스와이프 — 브라우저 기본 스크롤 억제
-      if (axisRef.current === 'horizontal') {
-        event.preventDefault();
+      if (gesture.axis === 'horizontal') {
+        preventDefault();
       }
     }
 
-    function handleTouchEnd(event: TouchEvent) {
-      if (!startRef.current || axisRef.current !== 'horizontal') {
-        resetTouch();
+    function endGesture(x: number) {
+      const gesture = gestureRef.current;
+      if (!gesture.active || !gesture.start || gesture.axis !== 'horizontal') {
+        resetGesture();
         return;
       }
 
-      const touch = event.changedTouches[0];
-      if (!touch) {
-        resetTouch();
-        return;
-      }
-
-      const dx = touch.clientX - startRef.current.x;
-      resetTouch();
+      const dx = x - gesture.start.x;
+      resetGesture();
 
       if (Math.abs(dx) < SWIPE_THRESHOLD_PX) return;
 
@@ -91,18 +103,43 @@ export function useSwipeMonth(
       }
     }
 
-    element.addEventListener('touchstart', handleTouchStart, { passive: true });
-    element.addEventListener('touchmove', handleTouchMove, { passive: false });
-    element.addEventListener('touchend', handleTouchEnd, { passive: true });
-    element.addEventListener('touchcancel', resetTouch, { passive: true });
+    function onPointerDown(event: PointerEvent) {
+      if (!inZone(event.target)) return;
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+
+      beginGesture(event.clientX, event.clientY, event.pointerId);
+    }
+
+    function onPointerMove(event: PointerEvent) {
+      const gesture = gestureRef.current;
+      if (!gesture.active || event.pointerId !== gesture.pointerId) return;
+
+      moveGesture(event.clientX, event.clientY, () => event.preventDefault());
+    }
+
+    function onPointerUp(event: PointerEvent) {
+      const gesture = gestureRef.current;
+      if (!gesture.active || event.pointerId !== gesture.pointerId) return;
+
+      endGesture(event.clientX);
+    }
+
+    const capture = { capture: true };
+    const moveOptions = { capture: true, passive: false };
+
+    document.addEventListener('pointerdown', onPointerDown, capture);
+    document.addEventListener('pointermove', onPointerMove, moveOptions);
+    document.addEventListener('pointerup', onPointerUp, capture);
+    document.addEventListener('pointercancel', resetGesture, capture);
 
     return () => {
-      element.removeEventListener('touchstart', handleTouchStart);
-      element.removeEventListener('touchmove', handleTouchMove);
-      element.removeEventListener('touchend', handleTouchEnd);
-      element.removeEventListener('touchcancel', resetTouch);
+      document.removeEventListener('pointerdown', onPointerDown, capture);
+      document.removeEventListener('pointermove', onPointerMove, moveOptions);
+      document.removeEventListener('pointerup', onPointerUp, capture);
+      document.removeEventListener('pointercancel', resetGesture, capture);
+      resetGesture();
     };
   }, [enabled]);
 
-  return elementRef;
+  return zoneRef;
 }
