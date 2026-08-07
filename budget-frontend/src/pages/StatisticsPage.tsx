@@ -7,6 +7,7 @@ import { StatsViewTabs, type StatsView } from '../components/stats/StatsViewTabs
 import { MonthNavigator } from '../components/layout/MonthNavigator';
 import { useCategories } from '../hooks/useCategories';
 import { useStatsTransactions } from '../hooks/useStatsTransactions';
+import { useSwipeMonth } from '../hooks/useSwipeMonth';
 import type { TransactionType } from '../types/category';
 import { formatYearLabel } from '../utils/format';
 import { getCurrentYearMonth, shiftMonth, shiftYear } from '../utils/month';
@@ -72,8 +73,11 @@ export function StatisticsPage() {
     }
   }
 
+  const swipeEnabled = view === 'category' || view === 'monthly';
+  const swipeHandlers = useSwipeMonth(goPrevPeriod, goNextPeriod, swipeEnabled);
+
   return (
-    <div className="stats-page">
+    <div className="stats-page stats-page--swipe" {...swipeHandlers}>
       <header className="stats-page__header">
         <div className="stats-page__type-toggle" role="tablist">
           <button

@@ -72,11 +72,21 @@
 
 .tx-form__field input,
 .tx-form__field select {
+  width: 100%;
+  box-sizing: border-box;
   padding: 0.625rem 0.75rem;
   border: 1px solid #ccc;
   border-radius: 4px;
   font: inherit;
   background: #fff;
+}
+
+/* iOS·Android — date/time 네이티브 입력 가로 폭 통일 */
+.tx-form__field input[type='date'],
+.tx-form__field input[type='time'] {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .tx-form__error {

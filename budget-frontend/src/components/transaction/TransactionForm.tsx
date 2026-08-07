@@ -280,7 +280,7 @@ export function TransactionForm({
             <span>메모</span>
             <input
               type="text"
-              placeholder="빨래방"
+              placeholder="내역을 입력하세요"
               maxLength={200}
               value={memo}
               onChange={(event) => setMemo(event.target.value)}

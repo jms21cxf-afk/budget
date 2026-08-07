@@ -10,6 +10,11 @@
   padding-top: 0.25rem;
 }
 
+/* 모바일 — 세로 스크롤 유지, 가로 스와이프로 월 이동 */
+.list-page--swipe {
+  touch-action: pan-y;
+}
+
 .list-page__toolbar {
   display: flex;
   justify-content: flex-end;

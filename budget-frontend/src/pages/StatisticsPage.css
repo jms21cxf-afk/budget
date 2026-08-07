@@ -63,3 +63,7 @@
 .stats-page__body {
   padding-top: 0.25rem;
 }
+
+.stats-page--swipe {
+  touch-action: pan-y;
+}

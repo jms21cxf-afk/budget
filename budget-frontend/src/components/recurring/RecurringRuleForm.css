@@ -86,10 +86,18 @@
 
 .recurring-form__field input,
 .recurring-form__field select {
+  width: 100%;
+  box-sizing: border-box;
   padding: 0.5rem 0.625rem;
   border: 1px solid #ccc;
   border-radius: 4px;
   font: inherit;
+}
+
+.recurring-form__field input[type='date'] {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .recurring-form__error {

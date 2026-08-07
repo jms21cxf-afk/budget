@@ -8,6 +8,7 @@ import { TransactionForm } from '../components/transaction/TransactionForm';
 import { TransactionList } from '../components/transaction/TransactionList';
 import { useAllCategories } from '../hooks/useAllCategories';
 import { useRecurringRules } from '../hooks/useRecurringRules';
+import { useSwipeMonth } from '../hooks/useSwipeMonth';
 import { useTransactions } from '../hooks/useTransactions';
 import type { TransactionType } from '../types/category';
 import type { Transaction } from '../types/transaction';
@@ -106,8 +107,14 @@ export function TransactionListPage() {
     setMonth(next.month);
   }
 
+  const swipeHandlers = useSwipeMonth(
+    goPrevMonth,
+    goNextMonth,
+    !formVisible && !recurringOpen,
+  );
+
   return (
-    <div className="list-page">
+    <div className="list-page list-page--swipe" {...swipeHandlers}>
       <StickyHeader
         year={year}
         month={month}
