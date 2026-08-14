@@ -1,4 +1,5 @@
-// 날짜별 거래 — 헤더(수입·지출 합계) + 카테고리별 목록
+// 날짜별 거래 — 헤더 탭으로 내역 접기/펼치기
+import { useState } from 'react';
 import type { Category } from '../../types/category';
 import type { TransactionType } from '../../types/category';
 import type { Transaction } from '../../types/transaction';
@@ -25,6 +26,7 @@ export function TransactionDayGroup({
   allCategories,
   onEdit,
 }: TransactionDayGroupProps) {
+  const [expanded, setExpanded] = useState(true);
   const visibleItems = items.filter((tx) => tx.type === filterType);
   const incomeTotal = sumAmountByType(items, 'income');
   const expenseTotal = sumAmountByType(items, 'expense');
@@ -32,7 +34,13 @@ export function TransactionDayGroup({
 
   return (
     <section className="day-group">
-      <div className="day-group__header">
+      <button
+        type="button"
+        className="day-group__header"
+        aria-expanded={expanded}
+        aria-label={`${formatDayHeader(date)} 내역 ${expanded ? '접기' : '펼치기'}`}
+        onClick={() => setExpanded((prev) => !prev)}
+      >
         <h2 className="day-group__date">{formatDayHeader(date)}</h2>
         <div className="day-group__totals">
           <span className="day-group__total day-group__total--income">
@@ -42,20 +50,22 @@ export function TransactionDayGroup({
             {formatAmount(expenseTotal)}
           </span>
         </div>
-      </div>
+      </button>
 
-      <div className="day-group__list">
-        {categoryGroups.map((group) => (
-          <TransactionCategoryGroup
-            key={group.categoryKey}
-            category={group.category}
-            categoryId={group.categoryId}
-            items={group.items}
-            allCategories={allCategories}
-            onEdit={onEdit}
-          />
-        ))}
-      </div>
+      {expanded && (
+        <div className="day-group__list">
+          {categoryGroups.map((group) => (
+            <TransactionCategoryGroup
+              key={group.categoryKey}
+              category={group.category}
+              categoryId={group.categoryId}
+              items={group.items}
+              allCategories={allCategories}
+              onEdit={onEdit}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
