@@ -6,10 +6,11 @@
 .tx-row__memo {
   grid-column: 2;
   min-width: 0;
-  padding: 0.125rem 0;
+  padding: 0;
   border: none;
   background: none;
   font-size: 1rem;
+  line-height: 1.2;
   text-align: left;
   color: inherit;
   cursor: pointer;
@@ -26,8 +27,9 @@
 
 .tx-row__amount {
   grid-column: 3;
-  padding: 0.125rem 0;
+  padding: 0;
   font-size: 1rem;
+  line-height: 1.2;
   text-align: right;
   white-space: nowrap;
   justify-self: end;
