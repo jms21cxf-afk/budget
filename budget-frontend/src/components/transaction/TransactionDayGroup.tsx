@@ -4,6 +4,8 @@ import type { Category } from '../../types/category';
 import type { TransactionType } from '../../types/category';
 import type { Transaction } from '../../types/transaction';
 import { formatAmount, formatDayHeader } from '../../utils/format';
+import { toDateKey } from '../../utils/calendar';
+import { getDayGroupExpanded, setDayGroupExpanded } from '../../utils/dayGroupCollapse';
 import {
   groupTransactionsByCategory,
   sumAmountByType,
@@ -26,7 +28,8 @@ export function TransactionDayGroup({
   allCategories,
   onEdit,
 }: TransactionDayGroupProps) {
-  const [expanded, setExpanded] = useState(true);
+  const dateKey = toDateKey(date);
+  const [expanded, setExpanded] = useState(() => getDayGroupExpanded(dateKey));
   const visibleItems = items.filter((tx) => tx.type === filterType);
   const incomeTotal = sumAmountByType(items, 'income');
   const expenseTotal = sumAmountByType(items, 'expense');
@@ -39,7 +42,13 @@ export function TransactionDayGroup({
         className="day-group__header"
         aria-expanded={expanded}
         aria-label={`${formatDayHeader(date)} 내역 ${expanded ? '접기' : '펼치기'}`}
-        onClick={() => setExpanded((prev) => !prev)}
+        onClick={() => {
+          setExpanded((prev) => {
+            const next = !prev;
+            setDayGroupExpanded(dateKey, next);
+            return next;
+          });
+        }}
       >
         <h2 className="day-group__date">{formatDayHeader(date)}</h2>
         <div className="day-group__totals">

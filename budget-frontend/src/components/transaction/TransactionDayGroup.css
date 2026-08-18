@@ -39,10 +39,17 @@
 }
 
 .day-group__totals {
-  display: flex;
-  align-items: baseline;
-  gap: 2rem;
+  display: grid;
+  /* 수입·지출 각각 오른쪽 정렬 — 금액 자릿수 맞춤 */
+  grid-template-columns: 5.5rem 5.5rem;
+  column-gap: 0.5rem;
   font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.day-group__total {
+  text-align: right;
+  white-space: nowrap;
 }
 
 .day-group__total--income {
