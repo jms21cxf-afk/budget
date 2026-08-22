@@ -119,6 +119,11 @@
   cursor: pointer;
 }
 
+.tx-form__sms-parse:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .tx-form__sms-hint {
   margin: 0;
   font-size: 0.8125rem;

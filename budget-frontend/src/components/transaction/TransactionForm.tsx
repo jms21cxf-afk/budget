@@ -62,6 +62,7 @@ export function TransactionForm({
   const [smsOpen, setSmsOpen] = useState(false);
   const [smsText, setSmsText] = useState('');
   const [smsHint, setSmsHint] = useState<string | null>(null);
+  const [smsParsing, setSmsParsing] = useState(false);
 
   // 모달 열릴 때 폼 초기화 (추가 / 수정)
   useEffect(() => {
@@ -71,6 +72,7 @@ export function TransactionForm({
     setSmsOpen(false);
     setSmsText('');
     setSmsHint(null);
+    setSmsParsing(false);
 
     if (transaction) {
       const parsed = parseOccurredAt(transaction.occurredAt);
@@ -105,19 +107,34 @@ export function TransactionForm({
 
   if (!open) return null;
 
-  /** 붙여넣은 결제 문자 → 폼 필드 자동 채움 */
-  function applySmsParse(text: string) {
-    const { result, filledFields, message } = parseSmsText(text);
-    setSmsHint(message);
+  /** 붙여넣은 결제 문자 → 폼 필드 자동 채움 (해외승인 시 환율 조회) */
+  async function applySmsParse(text: string) {
+    const trimmed = text.trim();
+    if (!trimmed) {
+      setSmsHint('문자 내용을 붙여넣어 주세요.');
+      return;
+    }
 
-    if (filledFields.length === 0) return;
+    setSmsParsing(true);
+    setSmsHint(null);
 
-    if (result.type) setFormType(result.type);
-    if (result.amount !== undefined) setAmount(String(result.amount));
-    if (result.date) setDate(result.date);
-    if (result.time) setTime(result.time);
-    if (result.memo) setMemo(result.memo);
-    if (result.paymentMethod) setPaymentMethod(result.paymentMethod);
+    try {
+      const { result, filledFields, message } = await parseSmsText(trimmed);
+      setSmsHint(message);
+
+      if (filledFields.length === 0) return;
+
+      if (result.type) setFormType(result.type);
+      if (result.amount !== undefined) setAmount(String(result.amount));
+      if (result.date) setDate(result.date);
+      if (result.time) setTime(result.time);
+      if (result.memo) setMemo(result.memo);
+      if (result.paymentMethod) setPaymentMethod(result.paymentMethod);
+    } catch {
+      setSmsHint('분석에 실패했습니다. 다시 시도하거나 직접 입력해 주세요.');
+    } finally {
+      setSmsParsing(false);
+    }
   }
 
   function handleSmsPaste(event: ClipboardEvent<HTMLTextAreaElement>) {
@@ -125,7 +142,7 @@ export function TransactionForm({
     if (!pasted.trim()) return;
 
     // 붙여넣기 직후 textarea 값 반영을 위해 다음 틱에 파싱
-    window.setTimeout(() => applySmsParse(pasted), 0);
+    window.setTimeout(() => void applySmsParse(pasted), 0);
   }
 
   async function handleSubmit(event: FormEvent) {
@@ -261,9 +278,10 @@ export function TransactionForm({
                   <button
                     type="button"
                     className="tx-form__sms-parse"
-                    onClick={() => applySmsParse(smsText)}
+                    disabled={smsParsing}
+                    onClick={() => void applySmsParse(smsText)}
                   >
-                    분석하기
+                    {smsParsing ? '환율 조회 중...' : '분석하기'}
                   </button>
                   {smsHint && (
                     <p

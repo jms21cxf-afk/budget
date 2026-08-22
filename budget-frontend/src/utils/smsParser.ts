@@ -1,6 +1,12 @@
 // 결제·입금 알림 문자 파싱 — 붙여넣기 전용 (SMS 권한 불필요)
 import type { TransactionType } from '../types/category';
 import type { PaymentMethod } from '../types/transaction';
+import { convertToKrw } from './exchangeRate';
+
+/** 지원 외화 코드 (카드 해외승인 문자) */
+const CURRENCY_CODES =
+  'USD|EUR|JPY|CNY|GBP|HKD|TWD|THB|VND|AUD|CAD|SGD|CHF|NZD|PHP|MYR|IDR';
+const CURRENCY_RE = new RegExp(CURRENCY_CODES, 'i');
 
 /** 파싱 결과 — 없는 필드는 undefined */
 export interface SmsParseResult {
@@ -49,6 +55,36 @@ function parseAmount(text: string): number | undefined {
   // 잔액·한도 등 부가 금액 제외 — 첫 번째 금액을 거래액으로 사용
   const first = toAmount(matches[0][1]);
   return first >= 1 ? first : undefined;
+}
+
+/** 해외승인 외화 — "해외승인 USD 5.50", "USD 5.50" 등 */
+function parseForeignAmount(
+  text: string,
+): { currency: string; amount: number } | undefined {
+  const patterns = [
+    new RegExp(
+      `(?:해외\\s*승인|해외|외화)\\s*(${CURRENCY_CODES})\\s*([\\d,]+(?:\\.\\d+)?)`,
+      'i',
+    ),
+    new RegExp(`(${CURRENCY_CODES})\\s*([\\d,]+(?:\\.\\d+)?)`, 'i'),
+    new RegExp(`([\\d,]+(?:\\.\\d+)?)\\s*(${CURRENCY_CODES})`, 'i'),
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (!match) continue;
+
+    const [, first, second] = match;
+    const currency = CURRENCY_RE.test(first) ? first : second;
+    const amountRaw = CURRENCY_RE.test(first) ? second : first;
+    const amount = Number(amountRaw.replace(/,/g, ''));
+
+    if (amount >= 0.01) {
+      return { currency: currency.toUpperCase(), amount };
+    }
+  }
+
+  return undefined;
 }
 
 /** 날짜·시간 추출 */
@@ -135,6 +171,11 @@ function isNoiseLine(line: string): boolean {
     /승인$|일시불$|할부$|체크$/i.test(trimmed) ||
     /^\d{1,3}(?:,\d{3})+\s*원/.test(trimmed) ||
     /^\d+\s*원/.test(trimmed) ||
+    /(?:해외\s*승인|해외|외화)/i.test(trimmed) ||
+    new RegExp(`^(?:${CURRENCY_CODES})\\s*[\\d,]+(?:\\.\\d+)?$`, 'i').test(trimmed) ||
+    new RegExp(`^[\\d,]+(?:\\.\\d+)?\\s*(?:${CURRENCY_CODES})$`, 'i').test(
+      trimmed,
+    ) ||
     /^\d{2}[/.]\d{2}/.test(trimmed) ||
     /^[\d*]+원?\s*(?:일시불|할부|\d+개월)?$/.test(trimmed) ||
     /^[\*●○·]+/.test(trimmed) ||
@@ -159,8 +200,8 @@ function parseMemo(text: string): string | undefined {
   return last.slice(0, 200);
 }
 
-/** 붙여넣은 결제 문자 분석 */
-export function parseSmsText(raw: string): SmsParseOutcome {
+/** 붙여넣은 결제 문자 분석 (해외승인 시 환율 API로 원화 환산) */
+export async function parseSmsText(raw: string): Promise<SmsParseOutcome> {
   const text = raw.trim();
 
   if (!text) {
@@ -173,11 +214,32 @@ export function parseSmsText(raw: string): SmsParseOutcome {
 
   const result: SmsParseResult = {};
   const filledFields: string[] = [];
+  let amountNote = '';
 
-  const amount = parseAmount(text);
-  if (amount !== undefined) {
-    result.amount = amount;
+  // 원화 금액 우선 — 같은 문자에 원·외화가 함께 있으면 청구 원화 사용
+  const krwAmount = parseAmount(text);
+  if (krwAmount !== undefined) {
+    result.amount = krwAmount;
     filledFields.push('금액');
+  } else {
+    const foreign = parseForeignAmount(text);
+    if (foreign) {
+      try {
+        const converted = await convertToKrw(foreign.amount, foreign.currency);
+        result.amount = converted;
+        filledFields.push('금액');
+        amountNote = ` (${foreign.currency} ${foreign.amount.toLocaleString('ko-KR')} → ${converted.toLocaleString('ko-KR')}원)`;
+      } catch (error) {
+        return {
+          result: {},
+          filledFields: [],
+          message:
+            error instanceof Error
+              ? error.message
+              : '환율 조회에 실패했습니다. 금액을 직접 입력해 주세요.',
+        };
+      }
+    }
   }
 
   const { date, time } = parseDateTime(text);
@@ -219,6 +281,6 @@ export function parseSmsText(raw: string): SmsParseOutcome {
   return {
     result,
     filledFields,
-    message: `${filledFields.join(', ')}을(를) 채웠습니다. 카테고리를 확인해 주세요.`,
+    message: `${filledFields.join(', ')}을(를) 채웠습니다.${amountNote} 카테고리를 확인해 주세요.`,
   };
 }
