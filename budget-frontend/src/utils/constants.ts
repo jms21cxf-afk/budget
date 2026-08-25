@@ -12,10 +12,11 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
 
 export const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const;
 
-export type ViewMode = 'list' | 'calendar' | 'monthly';
+export type ViewMode = 'list' | 'calendar' | 'monthly' | 'memo';
 
 export const VIEW_LABELS: Record<ViewMode, string> = {
   list: '목록',
   calendar: '달력',
   monthly: '월별',
+  memo: '메모',
 };

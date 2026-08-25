@@ -1,5 +1,6 @@
 // 거래 목록 페이지
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { MonthMemoPanel } from '../components/memo/MonthMemoPanel';
 import { RecurringPanel } from '../components/recurring/RecurringPanel';
 import { TransactionCalendar } from '../components/calendar/TransactionCalendar';
 import { StickyHeader } from '../components/layout/StickyHeader';
@@ -173,6 +174,8 @@ export function TransactionListPage() {
             error={error}
           />
         )}
+
+        {view === 'memo' && <MonthMemoPanel year={year} month={month} />}
       </SwipeableZone>
 
       {(view === 'list' || view === 'calendar') && (

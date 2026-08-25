@@ -1,9 +1,9 @@
-// 뷰 탭 — 목록 / 달력 / 월별
+// 뷰 탭 — 목록 / 달력 / 월별 / 메모
 import type { ViewMode } from '../../utils/constants';
 import { VIEW_LABELS } from '../../utils/constants';
 import './ViewTabs.css';
 
-const VIEW_MODES: ViewMode[] = ['list', 'calendar', 'monthly'];
+const VIEW_MODES: ViewMode[] = ['list', 'calendar', 'monthly', 'memo'];
 
 interface ViewTabsProps {
   active: ViewMode;

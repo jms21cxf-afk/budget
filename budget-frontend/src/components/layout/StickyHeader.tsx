@@ -51,12 +51,14 @@ export function StickyHeader({
         />
       </SwipeableZone>
       <ViewTabs active={view} onChange={onViewChange} />
-      <FilterBar
-        type={type}
-        incomeTotal={incomeTotal}
-        expenseTotal={expenseTotal}
-        onTypeChange={onTypeChange}
-      />
+      {view !== 'memo' && (
+        <FilterBar
+          type={type}
+          incomeTotal={incomeTotal}
+          expenseTotal={expenseTotal}
+          onTypeChange={onTypeChange}
+        />
+      )}
       <hr className="sticky-header__divider" />
     </header>
   );
